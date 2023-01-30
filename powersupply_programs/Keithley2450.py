@@ -14,6 +14,8 @@ class Keithley2450:
 
     Attributes
     ----------
+    port 
+        Port the device is connected to
 
     Methods
     -------
