@@ -7,10 +7,19 @@ import numpy as np
 
 
 class Keithley2450:
-    """
-    
-    
-    """
+    '''
+    This class is used to handele the commuication with a Keithley2450.
+
+    ...
+
+    Attributes
+    ----------
+    port 
+        Port the device is connected to
+
+    Methods
+    -------
+    '''
 
     def __init__(self, port:str=''):
         rm = pyvisa.ResourceManager()
