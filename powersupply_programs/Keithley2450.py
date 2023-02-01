@@ -7,10 +7,19 @@ import numpy as np
 
 
 class Keithley2450:
-    """
-    
-    
-    """
+    '''
+    This class is used to handele the commuication with a Keithley2450.
+
+    ...
+
+    Attributes
+    ----------
+    port 
+        Port the device is connected to
+
+    Methods
+    -------
+    '''
 
     def __init__(self, port:str=''):
         rm = pyvisa.ResourceManager()
@@ -23,32 +32,60 @@ class Keithley2450:
         self.sm = rm.open_resource(self.port)
         self.reset()
         
-    def reset(self):
+    def reset(self) -> None:
         self.sm.write('*RST')
         self.sens = 'current'
         self.source = 'voltage'
         self.two_wire = True
         self.enable = False
     
-    def enable_output(self):
-        self.sm.write(':OUTPut 1')
+            
+    def set_output_state(self, on_off:bool)-> None:
+        if type(on_off) == bool or on_off == 1 or 0:
+            self.sm.write(':OUTPut '+ str(int(on_off)))
     
-    def disable_output(self):
-        self.sm.write(':OUTPut 0')
+    def enable_output(self) -> None:
+        """Activates the output. 
 
-    def set_output_voltage(self, level):
+        """       
+        self.set_output_state(True)
+    
+    def disable_output(self) -> None:
+        """Disables the output. 
+
+        """  
+        self.set_output_state(False)
+
+    def query_output_state(self):
+        return self.sm.query_ascii_values(':OUTP?')
+
+    def set_output_voltage(self, level:float) -> None:
+        """Sets the output voltage in Volt.
+
+        Parameters
+        ----------
+        level
+            Voltage to be set in Volt
+        """
         if self.source == 'voltage':
             self.sm.write('SOUR:VOLT '+ str(level))
         else:
             pass
     
-    def set_output_current(self, level):
+    def set_output_current(self, level) -> None:
+        """Sets the output current in Amper.
+
+        Parameters
+        ----------
+        level
+            Current to be set in Amper
+        """
         if self.source == 'current':
             self.sm.write('SOUR:CURR '+ str(level))
         else:
             pass
 
-    def set_wire(self, two_wire:bool = True):
+    def set_wire(self, two_wire:bool = True) -> None:
         if two_wire == True:
             if self.sens == 'current':
                 self.sm.write('SENS:CURR:RSEN OFF')
@@ -65,25 +102,25 @@ class Keithley2450:
 
             self.two_wire = False     
     
-    def use_two_wire(self):
+    def use_two_wire(self) -> None: 
         self.set_wire(two_wire=True)
     
-    def use_four_wire(self):
+    def use_four_wire(self) -> None:
         self.set_wire(two_wire=False)
 
-    def sens_voltage(self):
+    def sens_voltage(self) -> None:
         self.sm.write('SENS:FUNC "VOLT"')
         if self.sens != 'voltage':
             self.sens = 'voltage'
             self.two_wire = True
 
-    def sens_current(self):
+    def sens_current(self) -> None:
         self.sm.write('SENS:FUNC "CURR"')
         if self.sens != 'current':
             self.sens = 'current'
             self.two_wire = True
     
-    def set_sens_range(self, range:float):
+    def set_sens_range(self, range:float) -> None:
         if range == 'auto':
             if self.sens == 'voltage':
                 self.sm.write('VOLT:RANG:AUTO ON')
@@ -99,19 +136,19 @@ class Keithley2450:
                
         self.sens_range = range
         
-    def source_voltage(self, readback:bool = True):
+    def source_voltage(self, readback:bool = True) -> None:
         self.sm.write('SOUR:FUNC VOLT')
         #self.sm.write(':SOUR:VOLT:READ:BACK ' + str(int(readback)))
         self.source = 'voltage'
         self.readback = readback
 
-    def source_current(self,readback:bool = True):
+    def source_current(self,readback:bool = True) -> None:
         self.sm.write('SOUR:FUNC CURR')
         #self.sm.write(':SOUR:CURR:READ:BACK?' + str(int(readback)))
         self.source = 'current'
         self.readback = readback
 
-    def set_source_range(self, range:float):
+    def set_source_range(self, range:float) -> None:
         if range == 'auto' or type(range) == float or int:
             if self.source == 'voltage':
                 self.sm.write('SOUR:VOLT:RANG '+ str(range))
@@ -123,7 +160,7 @@ class Keithley2450:
             pass
         self.source_range = range
     
-    def set_source_limit(self,limit:float):
+    def set_source_limit(self,limit:float) -> None:
         if self.source == 'voltage':
             self.sm.write('SOUR:VOLT:ILIM '+ str(limit))
         if self.source == 'current':
@@ -131,7 +168,7 @@ class Keithley2450:
 
         self.source_limit = limit
 
-    def setup_sweep(self,function:str,start:float,stop:float,steps:int,delay:float=0.1,count:int=1,rangeType:str='BEST',failAbort:str='OFF',dual='OFF',bufferName:str='defbuffer1',sweep_type:str='linear'):
+    def setup_sweep(self,function:str,start:float,stop:float,steps:int,delay:float=0.1,count:int=1,rangeType:str='BEST',failAbort:str='OFF',dual='OFF',bufferName:str='defbuffer1',sweep_type:str='linear') -> None:
         dict_types = {
             'linear':'LIN',
             'LIN':'LIN',
@@ -144,22 +181,22 @@ class Keithley2450:
         command_string += '"' + str(bufferName) + '"'
         self.sm.write(':SOUR:SWE:'+ function +':' + dict_types[sweep_type] + ' ' + command_string)
     
-    def setup_voltage_sweep(self,start:float,stop:float,steps:int,delay:float=0.1):
+    def setup_voltage_sweep(self,start:float,stop:float,steps:int,delay:float=0.1) -> None:
         self.setup_sweep('VOLT',start,stop,steps,delay)
 
-    def setup_current_sweep(self,start:float,stop:float,steps:int,delay:float=0.1):
+    def setup_current_sweep(self,start:float,stop:float,steps:int,delay:float=0.1) -> None:
         self.setup_sweep('CURR',start,stop,steps,delay)
 
-    def setup_cyclovoltammetrie(self,start:float,stop:float,steps:int,delay:float,cycles:int=1):
+    def setup_cyclovoltammetrie(self,start:float,stop:float,steps:int,delay:float,cycles:int=1) -> None:
         self.setup_sweep('VOLT',start,stop,steps,delay,cycles,dual='ON')
 
-    def initialise(self):
+    def initialise(self) -> None:
         self.sm.write('INIT')
 
-    def elements_in_buffer(self, buffer:str='defbuffer1'):
+    def elements_in_buffer(self, buffer:str='defbuffer1') -> None:
         return int(self.sm.query_ascii_values(':TRACe:ACTual? ' + '"' +str(buffer) + '"')[0])
 
-    def read_buffer(self, buffer:str='defbuffer1', source:bool = True, reading:bool = True, sourceunit:bool = False, readingunit:bool = False):
+    def read_buffer(self, buffer:str='defbuffer1', source:bool = True, reading:bool = True, sourceunit:bool = False, readingunit:bool = False) -> pd.DataFrame:
         timeout = 30 ## timout in sekunden ist abhänign von sm.timeout()
         while True:
             try:
@@ -204,19 +241,7 @@ class Keithley2450:
             return pd.DataFrame(data_np, columns=return_index)
         else:
             return []
-        
-    def set_output_state(self, on_off:bool):
-        if type(on_off) == bool or on_off == 1 or 0:
-            self.sm.write(':OUTP '+ str(int(on_off)))
-    
-    def output_on(self):
-        self.set_output_state(True)
-
-    def output_off(self):
-        self.set_output_state(False)
-    
-    def query_output_state(self):
-        return self.sm.query_ascii_values(':OUTP?')
+   
     
     def define_output_terminals(self,front:bool):
         if front:
