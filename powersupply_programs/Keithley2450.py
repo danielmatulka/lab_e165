@@ -42,7 +42,11 @@ class Keithley2450:
     def set_output_state(self, on_off:bool)-> None:
         if type(on_off) == bool or on_off == 1 or 0:
             self.sm.write(':OUTPut '+ str(int(on_off)))
-    
+            
+    def set_output_state(self, on_off:bool)-> None:
+        if type(on_off) == bool or on_off == 1 or 0:
+            self.sm.write(':OUTPut '+ str(int(on_off)))
+
     def enable_output(self) -> None:
         """Activates the output. 
 
@@ -60,6 +64,7 @@ class Keithley2450:
 
     def set_output_voltage(self, level:float) -> None:
         """Sets the output voltage in Volt.
+
 
         Parameters
         ----------
@@ -200,6 +205,7 @@ class Keithley2450:
         return int(self.sm.query_ascii_values(':TRACe:ACTual? ' + '"' +str(buffer) + '"')[0])
 
     def read_buffer(self, buffer:str='defbuffer1', source:bool = True, reading:bool = True, sourceunit:bool = False, readingunit:bool = False, utc_sec:bool = False, status:bool = False) -> pd.DataFrame:
+
         timeout = 30 ## timout in sekunden ist abhänign von sm.timeout()
         while True:
             try:
@@ -252,6 +258,7 @@ class Keithley2450:
             return pd.DataFrame(data_np, columns=return_index)
         else:
             return []  
+
     
     def define_output_terminals(self,front:bool):
         if front:
