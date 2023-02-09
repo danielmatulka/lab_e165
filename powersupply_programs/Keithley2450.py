@@ -38,8 +38,7 @@ class Keithley2450:
         self.source = 'voltage'
         self.two_wire = True
         self.enable = False
-    
-            
+          
     def set_output_state(self, on_off:bool)-> None:
         if type(on_off) == bool or on_off == 1 or 0:
             self.sm.write(':OUTPut '+ str(int(on_off)))
@@ -138,13 +137,17 @@ class Keithley2450:
         
     def source_voltage(self, readback:bool = True) -> None:
         self.sm.write('SOUR:FUNC VOLT')
-        #self.sm.write(':SOUR:VOLT:READ:BACK ' + str(int(readback)))
+        if readback:
+            pass
+            #self.sm.write(':SOUR:VOLT:READ:BACK ' + str(int(readback)))
         self.source = 'voltage'
         self.readback = readback
 
     def source_current(self,readback:bool = True) -> None:
         self.sm.write('SOUR:FUNC CURR')
-        #self.sm.write(':SOUR:CURR:READ:BACK?' + str(int(readback)))
+        if readback:
+            pass
+            #self.sm.write(':SOUR:CURR:READ:BACK?' + str(int(readback)))
         self.source = 'current'
         self.readback = readback
 
@@ -164,7 +167,7 @@ class Keithley2450:
         if self.source == 'voltage':
             self.sm.write('SOUR:VOLT:ILIM '+ str(limit))
         if self.source == 'current':
-            self.sm.write('SOUR:CURR:ILIM '+ str(limit))
+            self.sm.write('SOUR:CURR:VLIM '+ str(limit))
 
         self.source_limit = limit
 
@@ -196,7 +199,7 @@ class Keithley2450:
     def elements_in_buffer(self, buffer:str='defbuffer1') -> None:
         return int(self.sm.query_ascii_values(':TRACe:ACTual? ' + '"' +str(buffer) + '"')[0])
 
-    def read_buffer(self, buffer:str='defbuffer1', source:bool = True, reading:bool = True, sourceunit:bool = False, readingunit:bool = False) -> pd.DataFrame:
+    def read_buffer(self, buffer:str='defbuffer1', source:bool = True, reading:bool = True, sourceunit:bool = False, readingunit:bool = False, utc_sec:bool = False, status:bool = False) -> pd.DataFrame:
         timeout = 30 ## timout in sekunden ist abhänign von sm.timeout()
         while True:
             try:
@@ -222,7 +225,7 @@ class Keithley2450:
 
         if sourceunit:
             bufferelements += 'SOURUNIT, '
-            return_index.append('sourceunit')
+            return_index.append('Sourceunit')
 
         if reading:
             bufferelements += 'READ, '
@@ -232,6 +235,14 @@ class Keithley2450:
             bufferelements += 'UNIT, '
             return_index.append('Readingunit')
 
+        if utc_sec:
+            bufferelements += 'SEC, '
+            return_index.append('UTC_Time')
+
+        if status:
+            bufferelements += 'STAT, '
+            return_index.append('Read_Status')
+        
         bufferelements = bufferelements[:-2]
         
         if elements != 0:
@@ -240,8 +251,7 @@ class Keithley2450:
             data_np = np.array(query).reshape(int(len(query)/n),n)
             return pd.DataFrame(data_np, columns=return_index)
         else:
-            return []
-   
+            return []  
     
     def define_output_terminals(self,front:bool):
         if front:
@@ -256,6 +266,9 @@ class Keithley2450:
     
     def use_back_terminals(self):
         self.define_output_terminals(False)
+    
+    def eletrodeposition(self):
+        pass
             
 
 
