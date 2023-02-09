@@ -48,7 +48,7 @@ class VoltCraftPSP1803:
         Returns
         -------
         float
-            Volatge in Volt
+            Voltage in Volt
         """
         send = b''
         send += b'\xae'
@@ -58,7 +58,7 @@ class VoltCraftPSP1803:
         self.ser.write(send)
         return (int.from_bytes(self.ser.read(3)[1:3], byteorder='big')/50)
 
-    def enable_source(self) -> None:
+    def enable_output(self) -> None:
         """Activates the output. 
 
         """
@@ -68,7 +68,7 @@ class VoltCraftPSP1803:
         send += b'\x00' 
         self.ser.write(send)
 
-    def disable_source(self) -> None:
+    def disable_output(self) -> None:
         """Deactivate the output. 
 
         """
