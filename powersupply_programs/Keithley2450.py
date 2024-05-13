@@ -258,7 +258,6 @@ class Keithley2450:
             return pd.DataFrame(data_np, columns=return_index)
         else:
             return []  
-
     
     def define_output_terminals(self,front:bool):
         if front:
@@ -277,6 +276,7 @@ class Keithley2450:
     def eletrodeposition(self):
         pass
             
-
+    def measure(self):
+        return float(self.sm.query_ascii_values(':MEASure?')[0])
 
 
